@@ -1,3 +1,5 @@
+using System;
+using AutoMapper;
 using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +30,8 @@ namespace CourseLibrary.API
                setupAction.ReturnHttpNotAcceptable = true;
 
            }).AddXmlDataContractSerializerFormatters();
+
+           services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
              
             services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
 
@@ -44,6 +48,17 @@ namespace CourseLibrary.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("An unexpected fault happened. Try again later.");
+                    });
+                });
             }
 
             app.UseRouting();
